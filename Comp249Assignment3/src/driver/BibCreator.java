@@ -120,7 +120,7 @@ public class BibCreator {
 		} catch(FileInvalidException e) {
 			
 		}*/
-		int count = 0;
+		int count = 2;
 		do {
 			System.out.print("Enter name of file to display: ");
 			Path path = Paths.get(kb.next());
@@ -128,17 +128,17 @@ public class BibCreator {
 				displayFile(path);
 				break;
 			} catch(NoSuchFileException e) {
-				System.out.println("Could not find file " + path.getFileName());
-				System.out.println("Please try again");
-				count++;
+				System.out.println("Could not find file " + path.getFileName() + ". " + (count-1) + " attempt(s) remaining.");
+				count--;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				count++;
+				count--;
 			}
-		} while(count < 2);
+		} while(count > 0);
 		closeInputFilesUpToIndex(reader.length);
 		closeOutputFilesUpToIndices(writer.length, writer[0].length);
 		kb.close();
+		System.out.println("Goodbye.");
 	}
 }
