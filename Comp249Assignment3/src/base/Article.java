@@ -11,4 +11,6 @@ package base;
  */
 public class Article {
     
+    String author,title,journal,volume,pages, DOIaddress,month;
+    final static String DOI = "https://doi.org/";
 }
