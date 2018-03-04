@@ -68,10 +68,90 @@ public class BibCreator {
 		}
 		br.close();
 	}
-	/*//Awaiting implementation of FileInvalidException
-	public static void processFilesForValidation() throws FileInvalidException{
+	//Awaiting implementation of FileInvalidException
+	public static void processFilesForValidation() throws FileInvalidException, IOException{
+		String author = null;
+		String journal = null;
+		String title = null;
+		int year = 0;
+		String volume = null;
+		String pages = null;
+		String doi = null;
+		String month = null;
 		
-	}*/
+		String line = null;
+		String field = null;
+		String value = null;
+		int indexOpeningBrace = 0;
+		int indexClosingBrace = 0;
+		
+		for (int j = 0; j < reader.length; j++) {
+			while((line = reader[j].readLine()) != null) {
+				if(line.equals("@ARTICLE")) {
+					while((line = reader[j].readLine()) != null && !line.equals("}")) {
+						// begin populating fields by first checking for valid lines
+						
+						if((indexOpeningBrace = line.indexOf("={")) != -1) { // found a line with field + value(s)
+							if((indexClosingBrace = line.indexOf("}") - indexOpeningBrace) > 2) { // line is valid (ie: not "={}")
+
+								field = line.substring(0, indexOpeningBrace);
+								value = line.substring(indexOpeningBrace + 2, indexClosingBrace);
+
+								switch (field) {
+								case "author":
+									author = value;
+									break;
+								case "journal":
+									journal = value;
+									break;
+								case "title":
+									title = value;
+									break;
+								case "year":
+									year = Integer.parseInt(value);
+									break;
+								case "volume":
+									volume = value;
+									break;
+								case "pages":
+									pages = value;
+									break;
+								case "doi":
+									doi = value;
+									break;
+								case "month":
+									month = value;
+									break;
+								}
+
+							} else {
+								// line is not valid (ie: it contains empty values "={}")
+								throw new FileInvalidException();
+							}
+						}
+					}
+					
+					// All fields are set, create Article object
+					// Article a = new Article(args);
+					
+					// write to file now?
+					for(int i = 0; i < writer.length; i++) {
+						switch(i) {
+						case 0:
+							//writer[i][j].println(a.IEEEtoString());
+							break;
+						case 1:
+							//writer[i][j].println(a.ACMtoString());
+							break;
+						case 2:
+							//writer[i][j].println(a.NJtoString());
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
 
 	public static void main(String[] args) {
 		Scanner kb = new Scanner(System.in);
@@ -114,12 +194,15 @@ public class BibCreator {
 				}
 			}
 		}
-		/*// awaiting implementation of FileInvalidException
+		// awaiting implementation of FileInvalidException
 		try {
 			processFilesForValidation();
 		} catch(FileInvalidException e) {
 			
-		}*/
+		} catch(IOException e) {
+			
+		}
+		
 		int count = 2;
 		do {
 			System.out.print("Enter name of file to display: ");

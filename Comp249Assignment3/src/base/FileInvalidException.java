@@ -9,6 +9,6 @@ package base;
  *
  * @author Manhands
  */
-public class FileInvalidException {
+public class FileInvalidException extends Exception{
     
 }
