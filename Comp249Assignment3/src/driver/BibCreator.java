@@ -82,20 +82,25 @@ public class BibCreator {
 		String line = null;
 		String field = null;
 		String value = null;
-		int indexOpeningBrace = 0;
-		int indexClosingBrace = 0;
+		int indexStart = 0;
+		int indexFinish = 0;
+		
 		
 		for (int j = 0; j < reader.length; j++) {
+			int count = 0; // for testing
 			while((line = reader[j].readLine()) != null) {
-				if(line.equals("@ARTICLE")) {
-					while((line = reader[j].readLine()) != null && !line.equals("}")) {
+				if(line.indexOf("@ARTICLE{") > -1) {
+					count ++; // for testing
+					while((line = reader[j].readLine()) != null && line.indexOf("}") != 0) {
 						// begin populating fields by first checking for valid lines
-						
-						if((indexOpeningBrace = line.indexOf("={")) != -1) { // found a line with field + value(s)
-							if((indexClosingBrace = line.indexOf("}") - indexOpeningBrace) > 2) { // line is valid (ie: not "={}")
+						if((indexStart = line.indexOf("={")) != -1) { // found a line with field + value(s)
+							indexStart += 2; // set the index to proper location for extracting values
+							if((indexFinish = line.indexOf("}")) > indexStart) { // line is valid (ie: not "={}")
 
-								field = line.substring(0, indexOpeningBrace);
-								value = line.substring(indexOpeningBrace + 2, indexClosingBrace);
+								field = line.substring(0, (indexStart - 2)); // go back two spaces so we don't extract "<field>={"
+								value = line.substring(indexStart, indexFinish);
+								
+								// System.out.println(field + " = " + value); // for testing
 
 								switch (field) {
 								case "author":
@@ -126,7 +131,8 @@ public class BibCreator {
 
 							} else {
 								// line is not valid (ie: it contains empty values "={}")
-								throw new FileInvalidException();
+								// throw new FileInvalidException();
+								System.out.println("invalid field + value pair in article " + count + " in file " + (j+1)); // for testing
 							}
 						}
 					}
@@ -190,7 +196,7 @@ public class BibCreator {
 					closeInputFilesUpToIndex(reader.length);
 					closeOutputFilesUpToIndices(i+1, j+1);
 					deleteOutputFilesUpToIndices(i+1, j+1);
-					return;
+					return; // Exit the program
 				}
 			}
 		}
@@ -198,10 +204,13 @@ public class BibCreator {
 		try {
 			processFilesForValidation();
 		} catch(FileInvalidException e) {
-			
+			// close file and delete?
 		} catch(IOException e) {
 			
 		}
+		
+		closeInputFilesUpToIndex(reader.length);
+		closeOutputFilesUpToIndices(writer.length, writer[0].length);
 		
 		int count = 2;
 		do {
@@ -219,8 +228,7 @@ public class BibCreator {
 				count--;
 			}
 		} while(count > 0);
-		closeInputFilesUpToIndex(reader.length);
-		closeOutputFilesUpToIndices(writer.length, writer[0].length);
+		
 		kb.close();
 		System.out.println("Goodbye.");
 	}
